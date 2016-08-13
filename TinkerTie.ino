@@ -10,6 +10,8 @@
 #include <CapacitiveSensor.h>
 #include "Animations.h"
 
+//#define buttonPin 12
+
 CapacitiveSensor capSensor = CapacitiveSensor(3,1);
 byte onAniProfile = 0;
 byte onColourProfile = 0;
@@ -18,28 +20,33 @@ void setup() {
   bowtie.begin();
   bowtie.setBrightness(26);
   bowtie.show(); // Initialize all pixels to 'off'
+  //pinMode(buttonPin, INPUT);
 }
 
 void loop() {
-  capButton();
+  aniProfileButton();
+  //colourProfileButton();
   callAnimation(onAniProfile, onColourProfile);
   bowtie.show();
 }
 
-void capButton(){
+void aniProfileButton() {
   static long state_prev = capSensor.capacitiveSensor(30);
-  static unsigned long timer;
   long state_curr = capSensor.capacitiveSensor(30);
-  
-  if (state_curr == HIGH && state_prev == LOW){
-    timer = millis();
-  }
-  else if (state_curr == LOW && state_prev == HIGH){ //on button release
-    if (millis() - timer > 800) onColourProfile = (onColourProfile + 1) % numOfColourProfiles;
-    else {
-      onAniProfile = (onAniProfile + 1) % numOfAniProfiles;
-      atFrame = 0;
-    }
+
+  if ((state_curr <= 20) && (state_prev >= 50)) { //on short button release
+    onAniProfile = (onAniProfile + 1) % (numOfAniProfiles + 1);
+    atFrame = 0;
   }
   state_prev = state_curr;
 }
+//To be added later when a second button is installed onto the tinker tie.
+/*void colourProfileButton(){
+  static int state_prev = digitalRead(buttonPin);
+  int state_curr = digitalRead(buttonPin);
+  
+  if ((state_curr != state_prev){
+    onColourProfile = (onColourProfile + 1) % numOfColourProfiles;
+  }
+  state_prev = state_curr;
+}*/
