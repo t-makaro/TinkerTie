@@ -68,7 +68,7 @@ void breathe(colourProfile colour){
   if (atFrame <= 1) direct = 1;
   else if (atFrame >= divisions) direct = -1;
   atFrame += direct;
-  delay(20);
+  delay(16);
 }
 //profile 3
 byte daig0[] = {27,0}; byte daig1[][2] = {{19,26},{1,8}}; byte daig2[][3] = {{18,20,25},{2,7,9}}; byte daig3[][4] = {{14,17,21,24},{3,6,10,13}}; byte daig4[][8] = {{0,8,9,13,15,16,22,23},{4,5,11,12,14,18,19,27}}; 
