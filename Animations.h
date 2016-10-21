@@ -1,4 +1,3 @@
-
 /*
  * File name: Animations.h
  * Author: Tyler Makaro
