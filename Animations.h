@@ -17,8 +17,7 @@
 #include "abstractionLayer.h"
 
 Adafruit_NeoPixel bowtie = Adafruit_NeoPixel(28, 4, NEO_GRB + NEO_KHZ800);
-int atFrame = 0;
-const byte numOfAniProfiles = 4;
+int atFrame = 0;const byte numOfAniProfiles = 4;
 const byte numOfColourProfiles = 3;
 const byte primes[] = {53,59,61,67,71,73,79,83,113};
 
@@ -26,7 +25,6 @@ const byte primes[] = {53,59,61,67,71,73,79,83,113};
 void animateFunction( strengthFunction f, byte divisions, byte Delay, uint32_t colour1, uint32_t colour);
 void animateFunction2( strengthFunction2 f, byte divisions, byte Delay, uint32_t colour1, uint32_t colour2, int param);
 
-//Colour Profiles
 colourProfile colourProfiles[numOfColourProfiles] = {
   {0x0000EF,0xC9E0AA,0x00009E,0x00D0FF,0xFFC700}, //Blues
   {0xEAE307,0xFFAFC6,0xEEB700,0xFFF772,0xFFAAFF}, //Yellows
@@ -74,7 +72,6 @@ void cornerWash(colourProfile colour){
   if(atFrame == 30) sel = random(4);
   animateFunction2( cornerWashFunction, 60, 20, colour.dark, colour.light, sel);
 }
-
 //profile 4
 byte led[][5] = {{12,13,14,15,30},{0,1,2,8,30},{3,4,5,6,30},{7,9,10,11,30},{27,26,25,21,30},{24,23,22,16,30},{18,17,19,20,30}};
 void speckles(colourProfile colour){
@@ -95,7 +92,6 @@ void speckles(colourProfile colour){
   }
   delay(16);
 }
-
 //profile 5
 float rippleFunction(point pt, float frame, float divisions){
   return sin(-2*PI/divisions*frame+sqrt((pt.x*pt.x+5*pt.y*pt.y)))/2+.5;
