@@ -11,6 +11,8 @@
 #include "Animations.h"
 
 //#define buttonPin 12
+#define buttonPowerPin 10
+#define seedPin A2
 
 CapacitiveSensor capSensor = CapacitiveSensor(3,1);
 byte onAniProfile = 0;
@@ -20,14 +22,22 @@ void setup() {
   bowtie.begin();
   bowtie.setBrightness(26);
   bowtie.show(); // Initialize all pixels to 'off'
+  
   //pinMode(buttonPin, INPUT);
+  //pinMode(buttonPowerPin, OUTPUT);
+  //digitalWrite(buttonPowerPin, HIGH);
+  
+  randomSeed(analogRead(seedPin));
 }
 
 void loop() {
   aniProfileButton();
   //colourProfileButton();
+  
   callAnimation(onAniProfile, onColourProfile);
   bowtie.show();
+  
+  //testColours();
 }
 
 void aniProfileButton() {
@@ -50,3 +60,11 @@ void aniProfileButton() {
   }
   state_prev = state_curr;
 }*/
+
+void testColours(){
+  static long prevtime = millis();
+  if(millis()-prevtime > 5000){
+    prevtime = millis();
+    onColourProfile = (onColourProfile + 1) % numOfColourProfiles;
+  }
+}
