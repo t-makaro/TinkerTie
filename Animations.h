@@ -1,3 +1,4 @@
+
 /*
  * File name: Animations.h
  * Author: Tyler Makaro
@@ -14,6 +15,7 @@
  */
 #include <arduino.h>
 #include <Adafruit_NeoPixel.h>
+#include "abstractionLayer.h"
 
 Adafruit_NeoPixel bowtie = Adafruit_NeoPixel(28, 4, NEO_GRB + NEO_KHZ800);
 int atFrame = 0;
@@ -21,25 +23,16 @@ const byte numOfAniProfiles = 4;
 const byte numOfColourProfiles = 3;
 const byte primes[] = {53,59,61,67,71,73,79,83,113};
 
-//helper function prototypes
-int red(uint32_t colour);
-int green(uint32_t colour);
-int blue(uint32_t colour);
-uint32_t addAccentColour(uint32_t baseColour, uint32_t accentColour, float strength);
-uint32_t brushColour(uint32_t darkColour, uint32_t lightColour, byte shift, byte divisions);
+//structure function prototypes
+void animateFunction( strengthFunction f, byte divisions, byte Delay, uint32_t colour1, uint32_t colour);
+void animateFunction2( strengthFunction2 f, byte divisions, byte Delay, uint32_t colour1, uint32_t colour2, int param);
 
 //Colour Profiles
-typedef struct {
-  uint32_t primary;
-  uint32_t secondary;// = strip.Color(255, 0, 255);
-  uint32_t dark;
-  uint32_t light;
-} colourProfile;
-
 colourProfile colourProfiles[numOfColourProfiles] = {
-  {0x0000FF,0xE4FFC0,0x00009E,0x00D0FF}, //Blues
-  {0xFFFA07,0xFFAFC6,0xFFC700,0xFFF772}, //Yellows
-  {0xFF007D,0xFF0000,0xA3101F,0xFF7287}  //Reds,pink
+  {0x0000EF,0xC9E0AA,0x00009E,0x00D0FF,0xFFC700}, //Blues
+  {0xEAE307,0xFFAFC6,0xEEB700,0xFFF772,0xFFAAFF}, //Yellows
+  {0x9F0000,0xFF46E4,0xA3101F,0xFF0FDF,0xFFC700}, //Reds,pink
+  {0x008748,0xE5E500,0x007102,0x00FF77,0xE4ECC6} //Greens
 }; //fill with hexidecimal RGB colour codes
 
 //animation profiles
@@ -59,78 +52,59 @@ void solid(colourProfile colour){
 }
 //profile 2
 void breathe(colourProfile colour){
-  static float divisions = 60.;
-  static int direct = 1;
+  static float divisions = 120.;
   
-  uint32_t colourState = addAccentColour(colour.primary, colour.secondary, atFrame / divisions);
+  uint32_t colourState = addAccentColour(colour.primary, colour.secondary, -.5*cos(2*PI*atFrame/divisions)+.5);
   for (int i = 0; i < 28; i++) bowtie.setPixelColor(i, colourState);
   
-  if (atFrame <= 1) direct = 1;
-  else if (atFrame >= divisions) direct = -1;
-  atFrame += direct;
+  atFrame++;
+  atFrame %= (int)divisions;
   delay(16);
 }
 //profile 3
-byte daig0[] = {27,0}; byte daig1[][2] = {{19,26},{1,8}}; byte daig2[][3] = {{18,20,25},{2,7,9}}; byte daig3[][4] = {{14,17,21,24},{3,6,10,13}}; byte daig4[][8] = {{0,8,9,13,15,16,22,23},{4,5,11,12,14,18,19,27}}; 
-byte daig5[][4] = {{1,7,10,12},{15,17,20,26}}; byte daig6[][3] = {{2,6,11},{16,21,25}}; byte daig7[][2] = {{3,5},{22,24}}; byte daig8[] = {4,23};
-void cornerWash(colourProfile colour){
-  static byte divisions = 70;
-  static boolean up = false;
-  static byte side = 1;
-  uint32_t bcolour;
-  
-  bcolour = brushColour(colour.dark, colour.light, 15, divisions);
-  bowtie.setPixelColor(daig0[side], bcolour);
-  bcolour = brushColour(colour.dark, colour.light, 20, divisions);
-  for (int i : daig1[side]) bowtie.setPixelColor(i,bcolour);
-  bcolour = brushColour(colour.dark, colour.light, 25, divisions);
-  for (int i : daig2[side]) bowtie.setPixelColor(i,bcolour);
-  bcolour = brushColour(colour.dark, colour.light, 30, divisions);
-  for (int i : daig3[side]) bowtie.setPixelColor(i,bcolour);
-  bcolour = brushColour(colour.dark, colour.light, 35, divisions);
-  for (int i : daig4[side]) bowtie.setPixelColor(i,bcolour);
-  bcolour = brushColour(colour.dark, colour.light, 40, divisions);
-  for (int i : daig5[side]) bowtie.setPixelColor(i,bcolour);
-  bcolour = brushColour(colour.dark, colour.light, 45, divisions);
-  for (int i : daig6[side]) bowtie.setPixelColor(i,bcolour);
-  bcolour = brushColour(colour.dark, colour.light, 50, divisions);
-  for (int i : daig7[side]) bowtie.setPixelColor(i,bcolour);
-  bcolour = brushColour(colour.dark, colour.light, 55, divisions);
-  bowtie.setPixelColor(daig8[side],bcolour);
-
-  if(!up) atFrame += -1;
-  else if(up) atFrame += 1;
-  if (atFrame <= 0 || atFrame >= divisions){ //At the end of a cycle, determine where the next cycle starts
-    byte num = random(4);
-    up = (num % 2 == 0);
-    side  = (num > 1 == 1? 1: 0);
-    if (up) atFrame = 0;
-    else atFrame = divisions;
-  }
-  delay(10);
+float cornerWashFunction(point pt, float frame, float divisions, int sel){
+  float x = (pt.x * .3926 * (sel>1?1:-1) + pt.y * .9197) * .75;
+  float t = 8*frame/divisions - 4;
+  float p = x + (sel%2==0?1:-1)*t;
+  if(p>4) p-= 8;
+  else if(p<-4) p += 8;
+  return p*p/16;
 }
+void cornerWash(colourProfile colour){
+  static int sel;
+  if(atFrame == 30) sel = random(4);
+  animateFunction2( cornerWashFunction, 60, 20, colour.dark, colour.light, sel);
+}
+
 //profile 4
 byte led[][5] = {{12,13,14,15,30},{0,1,2,8,30},{3,4,5,6,30},{7,9,10,11,30},{27,26,25,21,30},{24,23,22,16,30},{18,17,19,20,30}};
 void speckles(colourProfile colour){
   static byte frames[]     = {0, 50,20,60,10,30,40};
   static float divisions[] = {53,61,79,83,53,73,89};
-  static byte direct[]     = { 1, 1, 1, 1, 1, 1, 1};
   static byte animating[]  = { 0, 0, 0, 0, 0, 0, 0};
   
   for (int i = 0; i < 28; i++) bowtie.setPixelColor(i, colour.primary);
-  for (int i = 0; i < 7; i++)  bowtie.setPixelColor(led[i][animating[i]], addAccentColour(colour.primary, colour.secondary, frames[i] / divisions[i]));
+  for (int i = 0; i < 7; i++)  bowtie.setPixelColor(led[i][animating[i]], addAccentColour(colour.dark, colour.pop, -.5*cos(2*PI*frames[i] / divisions[i])+.5));
   
   for (int i = 0; i < 7; i++){
-    if (frames[i] >= divisions[i]) direct[i] = -1;
+    frames[i] %= (int)divisions[i];
     if (frames[i] <= 0) { 
-      direct[i] = 1; 
       animating[i] = random(5); 
       divisions[i] = primes[random(9)]; 
     }
-    frames[i] += direct[i];
+    frames[i]++;
   }
-  delay(8);
+  delay(16);
 }
+
+//profile 5
+float rippleFunction(point pt, float frame, float divisions){
+  return sin(-2*PI/divisions*frame+sqrt((pt.x*pt.x+5*pt.y*pt.y)))/2+.5;
+}
+void ripples(colourProfile colour){
+  animateFunction(rippleFunction, 60, 10, colour.dark, colour.light);
+}
+
 void callAnimation(byte aniProfile, byte colourProfile){
   switch (aniProfile){
     case 0:
@@ -151,22 +125,34 @@ void callAnimation(byte aniProfile, byte colourProfile){
   }
 }
 
-//helper functions
-int red  (uint32_t colour) { return colour >> 16 & 0xFF; }
-int green(uint32_t colour) { return colour >> 8 & 0xFF; }
-int blue (uint32_t colour) { return colour & 0xFF; }
-
-uint32_t brushColour(uint32_t darkColour, uint32_t lightColour, byte shift, byte divisions){
-  float strength = ((atFrame + shift) % divisions) / (float)divisions;
-  strength = 4 * (strength - .5)*(strength - .5);
-  return addAccentColour(darkColour, lightColour, strength);
-}
-
-//strength 0 return the base colour, strength 1 returns the accent colour,
-uint32_t addAccentColour(uint32_t baseColour, uint32_t accentColour, float strength){
-  uint32_t r = constrain(  red(baseColour) + ((  red(accentColour) -   red(baseColour)) * strength), 0, 255);
-  uint32_t g = constrain(green(baseColour) + ((green(accentColour) - green(baseColour)) * strength), 0, 255);
-  uint32_t b = constrain( blue(baseColour) + (( blue(accentColour) -  blue(baseColour)) * strength), 0, 255);
+//structure functions
+void animateFunction( strengthFunction f, byte divisions, byte Delay, uint32_t colour1, uint32_t colour2){
+  point pt;
+  uint32_t colourState;
+  float strength;
   
-  return (r << 16) | (g << 8) | b;
+  for (int i = 0; i < 28; i++){
+    pt = ledNumToPoint(i);
+    strength = f(pt, atFrame, divisions);
+    colourState = addAccentColour(colour1, colour2, strength);
+    bowtie.setPixelColor(i, colourState);
+  }
+  atFrame++;
+  atFrame %= divisions;
+  delay(Delay);
+}
+void animateFunction2( strengthFunction2 f, byte divisions, byte Delay, uint32_t colour1, uint32_t colour2, int param){
+  point pt;
+  uint32_t colourState;
+  float strength;
+  
+  for (int i = 0; i < 28; i++){
+    pt = ledNumToPoint(i);
+    strength = f(pt, atFrame, divisions, param);
+    colourState = addAccentColour(colour1, colour2, strength);
+    bowtie.setPixelColor(i, colourState);
+  }
+  atFrame++;
+  atFrame %= divisions;
+  delay(Delay);
 }
