@@ -11,12 +11,20 @@
 
 Adafruit_NeoPixel bowtie = Adafruit_NeoPixel(28, 4, NEO_GRB + NEO_KHZ800);
 int atFrame = 0;
+byte onAniProfile = 0;
+byte onDecayState = 1;
 const byte numOfAniProfiles = 1;
-const byte numOfColourProfiles = 1;
-
-colourProfile halloween ={
-	{0x0},{0x0},{0x0},{0x0},{0x0}
+const byte numOfDecayStates = 2;
+const uint32_t decayStates[numOfDecayStates] = {
+	0,0b10111100010011000000
 };
+
+colourProfile halloween = {
+	0xFF6A00,0xD3D300,0x282828,0xFFD177,0x992100
+};
+//prototypes
+bool flicker();
+bool isDecayed(byte ledNum);
 
 //animation profiles
 //profile 0
@@ -27,20 +35,48 @@ void off(){
   delay(100);
 }
 //profile 1
-void solid(colourProfile colour){
+void solid(){
+  flicker();
   for (int i = 0; i < 28; i++){
-    bowtie.setPixelColor(i, colour.primary);
+	if(isDecayed(i)) bowtie.setPixelColor(i,addAccentColour(halloween.dark,halloween.primary, .2));
+	else bowtie.setPixelColor(i, halloween.primary);
   }
   delay(100);
 }
 
-void callAnimation(byte aniProfile, byte colourProfile){
-  switch (aniProfile){
+void callAnimation(){
+  switch (onAniProfile){
     case 0:
       off();
       break;
     case 1:
-      solid(halloween);
+      solid();
       break;
   }
+}
+//Here we will use colour profile to change decayed state instead
+void nextColourProfile(){
+	onDecayState = random(numOfDecayStates);
+}
+void nextAnimationProfile(){
+  onAniProfile = (onAniProfile + 1) % (numOfAniProfiles + 1);
+  nextColourProfile();
+  atFrame = 0;
+}
+
+//add flicker to animations
+bool flicker(){
+	if (random(100)%20 == 0){
+		for (int i = 0; i < 28; i++){
+			bowtie.setPixelColor(i, halloween.dark);
+		}
+		bowtie.show();
+		delay(3);
+		return true;
+	}
+	return false;
+}
+//is 
+bool isDecayed(byte ledNum){
+	return (decayStates[onDecayState] >> ledNum & 1) == 1;
 }
