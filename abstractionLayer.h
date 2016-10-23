@@ -99,3 +99,13 @@ uint32_t addAccentColour(uint32_t baseColour, uint32_t accentColour, float stren
   
   return (r << 16) | (g << 8) | b;
 }
+
+//copies the values from one colourProfile into another
+//Update values instead of reference so that modifying the copyTo point later does not change the copyFrom point
+void copyColours(colourProfile* copyTo, colourProfile copyFrom){
+  copyTo->primary   = copyFrom.primary;
+  copyTo->secondary = copyFrom.secondary;
+  copyTo->dark      = copyFrom.dark;
+  copyTo->light     = copyFrom.light;
+  copyTo->pop       = copyFrom.pop;  
+}

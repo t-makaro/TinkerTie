@@ -15,8 +15,6 @@
 #define seedPin A2
 
 CapacitiveSensor capSensor = CapacitiveSensor(3, 1);
-byte onAniProfile = 0;
-byte onColourProfile = 0;
 
 void setup() {
   bowtie.begin();
@@ -34,7 +32,7 @@ void loop() {
   aniProfileButton();
   //colourProfileButton();
   
-  callAnimation(onAniProfile, onColourProfile);
+  callAnimation();
   bowtie.show();
   
   //testColours();
@@ -45,8 +43,7 @@ void aniProfileButton() {
   long state_curr = capSensor.capacitiveSensor(30);
 
   if ((state_curr <= 20) && (state_prev >= 50)) { //on short button release
-    onAniProfile = (onAniProfile + 1) % (numOfAniProfiles + 1);
-    atFrame = 0;
+    nextAnimationProfile();
   }
   state_prev = state_curr;
 }
@@ -57,7 +54,7 @@ void aniProfileButton() {
   int state_curr = digitalRead(buttonPin);
   
   if (state_curr == LOW){
-    onColourProfile = (onColourProfile + 1) % numOfColourProfiles;
+    nextColourProfile();
   }
   state_prev = state_curr;
 }*/
@@ -66,6 +63,6 @@ void testColours(){
   static long prevtime = millis();
   if(millis()-prevtime > 5000){
     prevtime = millis();
-    onColourProfile = (onColourProfile + 1) % numOfColourProfiles;
+    nextColourProfile();
   }
 }

@@ -2,9 +2,8 @@
  * File name: Animations.h
  * Author: Tyler Makaro
  * How to use: 
- *  The variables atFrame, numOfAniProfiles, and numOfColourProfiles MUST exist as they are used in the tinkertie.ino code.
  *  The NeoPixel bowtie object is used in the tinkertie.ino code and MUST remain unmodified to display the animations to the bowtie.
- *  The function callAnimation MUST exist with the number of the wanted animation and colour profile as parameters.
+ *  The functions callAnimation, nextColourProfile and nextAnimationProfile MUST exist with the same protoype as they are used in tinkertie.ino
  *  The structure of the colour profiles and animation profiles may be modified for the desired effect.
  * Notes:
  *  The animation functions should act sort of like iterators. They should iterate the atFrame variable to prepare for the
@@ -18,6 +17,7 @@
 
 Adafruit_NeoPixel bowtie = Adafruit_NeoPixel(28, 4, NEO_GRB + NEO_KHZ800);
 int atFrame = 0;
+byte onAniProfile = 0;
 const byte numOfAniProfiles = 5;
 const byte numOfColourProfiles = 4;
 const byte primes[] = {53,59,61,67,71,73,79,83,113};
@@ -32,6 +32,7 @@ colourProfile colourProfiles[numOfColourProfiles] = {
   {0x9F0000,0xFF46E4,0xA3101F,0xFF0FDF,0xFFC700}, //Reds,pink
   {0x008748,0xE5E500,0x007102,0x00FF77,0xE4ECC6} //Greens
 }; //fill with hexidecimal RGB colour codes
+colourProfile currentColours = colourProfiles[0];
 
 //animation profiles
 //profile 0
@@ -101,27 +102,37 @@ void ripples(colourProfile colour){
   animateFunction(rippleFunction, 60, 10, colour.dark, colour.light);
 }
 
-void callAnimation(byte aniProfile, byte colourProfile){
-  switch (aniProfile){
+//vital functions
+void callAnimation(){
+  switch (onAniProfile){
     case 0:
       off();
       break;
     case 1:
-      solid(colourProfiles[colourProfile]);
+      solid(currentColours);
       break;
     case 2:
-      breathe(colourProfiles[colourProfile]);
+      breathe(currentColours);
       break;
     case 3:
-      cornerWash(colourProfiles[colourProfile]);
+      cornerWash(currentColours);
       break;
     case 4:
-      speckles(colourProfiles[colourProfile]);
+      speckles(currentColours);
       break;
     case 5:
-      ripples(colourProfiles[colourProfile]);
+      ripples(currentColours);
       break;
   }
+}
+void nextAnimationProfile(){
+  onAniProfile = (onAniProfile + 1) % (numOfAniProfiles + 1);
+  atFrame = 0;
+}
+void nextColourProfile(){
+  static byte onColourProfile = 0;
+  onColourProfile = (onColourProfile + 1) % numOfColourProfiles;
+  copyColours(&currentColours, colourProfiles[onColourProfile]);
 }
 
 //structure functions
