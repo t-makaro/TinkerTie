@@ -7,23 +7,24 @@
  */
 #include <arduino.h>
 #include <Adafruit_NeoPixel.h>
+#include <math.h>
 #include "abstractionLayer.h"
 
 Adafruit_NeoPixel bowtie = Adafruit_NeoPixel(28, 4, NEO_GRB + NEO_KHZ800);
 int atFrame = 0;
 byte onAniProfile = 0;
 byte onDecayState = 1;
-const byte numOfAniProfiles = 1;
-const byte numOfDecayStates = 2;
+const byte numOfAniProfiles = 3;
+const byte numOfDecayStates = 4;
 const uint32_t decayStates[numOfDecayStates] = {
-	0,0b10111100010011000000
+	0,0b10111100010011001100,0b1100000010000000110011111101,0b1000011100010100000110010011
 };
 
 colourProfile halloween = {
-	0xFF6A00,0xD3D300,0x282828,0xFFD177,0x992100
+	0xFF6A00,0xD3D300,0x282828,0xFFD177,0x072807
 };
 //prototypes
-bool flicker();
+bool flicker(byte Delay, byte modify);
 bool isDecayed(byte ledNum);
 
 //animation profiles
@@ -36,15 +37,68 @@ void off(){
 }
 //profile 1
 void solid(){
-  flicker();
+  flicker(3,20);
   for (int i = 0; i < 28; i++){
-	if(isDecayed(i)) bowtie.setPixelColor(i,addAccentColour(halloween.dark,halloween.primary, .2));
+	if(isDecayed(i)) bowtie.setPixelColor(i,addAccentColour(halloween.dark,halloween.primary, .1));
 	else bowtie.setPixelColor(i, halloween.primary);
   }
   delay(100);
 }
+//profile 2
+float spookyBreatheFunctionP1(float t){
+  return t + .15*sin(6*PI*t);
+}
+float spookyBreatheFunctionP2(float t){
+  return -18.85*t*t+29.63*t-10.77;
+}
+void spookyBreathe(){
+  flicker(90, 400);
+  int16_t divisions = 300;
+  float t = (float)atFrame / divisions;
+  float strength;
+  if (t < .83) { strength = spookyBreatheFunctionP1(t); }
+  else {strength = spookyBreatheFunctionP2(t); }
+  uint32_t colourState = addAccentColour(halloween.dark,halloween.primary,strength);
+  uint32_t colourStateDecay = addAccentColour(0x202020,halloween.primary,strength/2);
+  for (int i = 0; i < 28; i++){
+    if(isDecayed(i)) bowtie.setPixelColor(i,colourStateDecay);
+    else bowtie.setPixelColor(i, colourState);
+  }
+  atFrame++;
+  atFrame %= divisions;
+  delay(16);
+}
+//profile 3
+float wingsFunction(point pt, float t){
+  float phi = atan(pt.y/abs(pt.x))*12;
+  t = 12*PI/8*sin(2*PI*t);
+  return 1/((phi+t)*(phi+t)+1);
+}
+void wings(){
+  flicker(90,65);
+  byte divisions = 35;
+  uint32_t colourState;
+  float strength;
+  point pt;
+  for (int i = 0; i < 28; i++){
+    pt = ledNumToPoint(i);
+    strength = wingsFunction(pt, (float)atFrame/divisions);
+    if(isDecayed(i)) colourState = addAccentColour(halloween.pop,halloween.primary, .5*strength);
+    else colourState = addAccentColour(halloween.dark, halloween.primary, strength);
+    bowtie.setPixelColor(i, colourState);
+  }
+  atFrame++;
+  atFrame %= divisions;
+  delay(14);
+}
 
 void callAnimation(){
+  static long timer = millis();
+  long time = millis();
+  if (time - timer > 93206){
+    timer = time;
+    onDecayState = random(numOfDecayStates);
+  }
   switch (onAniProfile){
     case 0:
       off();
@@ -52,11 +106,17 @@ void callAnimation(){
     case 1:
       solid();
       break;
+    case 2:
+      spookyBreathe();
+      break;
+    case 3:
+      wings();
+      break;
   }
 }
 //Here we will use colour profile to change decayed state instead
 void nextColourProfile(){
-	onDecayState = random(numOfDecayStates);
+  onDecayState = random(numOfDecayStates);
 }
 void nextAnimationProfile(){
   onAniProfile = (onAniProfile + 1) % (numOfAniProfiles + 1);
@@ -65,13 +125,13 @@ void nextAnimationProfile(){
 }
 
 //add flicker to animations
-bool flicker(){
-	if (random(100)%20 == 0){
+bool flicker(byte Delay, byte modify){
+	if (random(1000)%modify == 0){
 		for (int i = 0; i < 28; i++){
 			bowtie.setPixelColor(i, halloween.dark);
 		}
 		bowtie.show();
-		delay(3);
+		delay(Delay);
 		return true;
 	}
 	return false;
