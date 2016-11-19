@@ -14,7 +14,7 @@ Adafruit_NeoPixel bowtie = Adafruit_NeoPixel(28, 4, NEO_GRB + NEO_KHZ800);
 int atFrame = 0;
 byte onAniProfile = 0;
 byte onDecayState = 1;
-const byte numOfAniProfiles = 3;
+const byte numOfAniProfiles = 4;
 const byte numOfDecayStates = 4;
 const uint32_t decayStates[numOfDecayStates] = {
 	0,0b10111100010011001100,0b1100000010000000110011111101,0b1000011100010100000110010011
@@ -75,7 +75,7 @@ float wingsFunction(point pt, float t){
   return 1/((phi+t)*(phi+t)+1);
 }
 void wings(){
-  flicker(90,65);
+  flicker(100,65);
   byte divisions = 35;
   uint32_t colourState;
   float strength;
@@ -90,6 +90,22 @@ void wings(){
   atFrame++;
   atFrame %= divisions;
   delay(14);
+}
+//profile 4
+void cross(){
+  flicker(100, 70);
+  byte divisions = 40;
+  uint32_t colourState;
+  float strength;
+  for (int i = 0; i < 28; i++){
+    strength = .5*sin(2*PI*(float)atFrame/divisions + (i%2==0?0:PI))+.5;
+    if(isDecayed(i)) strength /= 2;
+    colourState = addAccentColour(2*halloween.dark, 2*halloween.pop, strength);
+    bowtie.setPixelColor(i, colourState);
+  }
+  atFrame++;
+  atFrame %= divisions;
+  delay(25);
 }
 
 void callAnimation(){
@@ -111,6 +127,9 @@ void callAnimation(){
       break;
     case 3:
       wings();
+      break;
+    case 4:
+      cross();
       break;
   }
 }
