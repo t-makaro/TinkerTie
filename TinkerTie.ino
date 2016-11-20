@@ -42,7 +42,7 @@ void aniProfileButton() {
   static long state_prev = capSensor.capacitiveSensor(30);
   long state_curr = capSensor.capacitiveSensor(30);
 
-  if ((state_curr <= 20) && (state_prev >= 50)) { //on short button release
+  if ((state_curr <= 40) && (state_prev >= 50)) { //on short button release
     nextAnimationProfile();
   }
   state_prev = state_curr;
