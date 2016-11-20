@@ -14,8 +14,8 @@ typedef struct {
   float y; //
 } point;
 
-typedef float (*strengthFunction)(point, float, float);
-typedef float (*strengthFunction2)(point, float, float, int);
+typedef float (*strengthFunction)(point, float);
+typedef float (*strengthFunction2)(point, float, int);
 
 typedef struct {
   uint32_t primary;

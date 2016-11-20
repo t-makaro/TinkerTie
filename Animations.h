@@ -14,16 +14,17 @@
 #include <arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include "abstractionLayer.h"
+#include "GameOfLife.h"
 
 Adafruit_NeoPixel bowtie = Adafruit_NeoPixel(28, 4, NEO_GRB + NEO_KHZ800);
 int atFrame = 0;
 byte onAniProfile = 0;
-const byte numOfAniProfiles = 5;
+const byte numOfAniProfiles = 6;
 const byte numOfColourProfiles = 4;
 const byte primes[] = {53,59,61,67,71,73,79,83,113};
 
 //structure function prototypes
-void animateFunction( strengthFunction f, byte divisions, byte Delay, uint32_t colour1, uint32_t colour);
+void animateFunction( strengthFunction f, byte divisions, byte Delay, uint32_t colour1, uint32_t colour2);
 void animateFunction2( strengthFunction2 f, byte divisions, byte Delay, uint32_t colour1, uint32_t colour2, int param);
 
 colourProfile colourProfiles[numOfColourProfiles] = {
@@ -61,9 +62,9 @@ void breathe(colourProfile colour){
   delay(16);
 }
 //profile 3
-float cornerWashFunction(point pt, float frame, float divisions, int sel){
+float cornerWashFunction(point pt, float time, int sel){
   float x = (pt.x * .3926 * (sel>1?1:-1) + pt.y * .9197) * .75;
-  float t = 8*frame/divisions - 4;
+  float t = 8*time - 4;
   float p = x + (sel%2==0?1:-1)*t;
   if(p>4) p-= 8;
   else if(p<-4) p += 8;
@@ -95,11 +96,21 @@ void speckles(colourProfile colour){
   delay(16);
 }
 //profile 5
-float rippleFunction(point pt, float frame, float divisions){
-  return sin(-2*PI/divisions*frame+sqrt((pt.x*pt.x+5*pt.y*pt.y)))/2+.5;
+float rippleFunction(point pt, float time){
+  return sin(-2*PI*time+sqrt((pt.x*pt.x+5*pt.y*pt.y)))/2+.5;
 }
 void ripples(colourProfile colour){
   animateFunction(rippleFunction, 60, 10, colour.dark, colour.light);
+}
+//profile 6
+void life(){
+  for(byte i = 0; i < 28; i++){
+    if(isAlive(i)) bowtie.setPixelColor(i, currentColours.pop);
+    else bowtie.setPixelColor(i,currentColours.dark);
+  }
+  if (atFrame == 4) iterateGame();
+  atFrame = (atFrame + 1) % 5;
+  delay(100);
 }
 
 //vital functions
@@ -123,6 +134,9 @@ void callAnimation(){
     case 5:
       ripples(currentColours);
       break;
+    case 6:
+      life();
+      break;
   }
 }
 void nextAnimationProfile(){
@@ -143,7 +157,7 @@ void animateFunction( strengthFunction f, byte divisions, byte Delay, uint32_t c
   
   for (int i = 0; i < 28; i++){
     pt = ledNumToPoint(i);
-    strength = f(pt, atFrame, divisions);
+    strength = f(pt, atFrame/(float)divisions);
     colourState = addAccentColour(colour1, colour2, strength);
     bowtie.setPixelColor(i, colourState);
   }
@@ -158,7 +172,7 @@ void animateFunction2( strengthFunction2 f, byte divisions, byte Delay, uint32_t
   
   for (int i = 0; i < 28; i++){
     pt = ledNumToPoint(i);
-    strength = f(pt, atFrame, divisions, param);
+    strength = f(pt, atFrame/(float)divisions, param);
     colourState = addAccentColour(colour1, colour2, strength);
     bowtie.setPixelColor(i, colourState);
   }
