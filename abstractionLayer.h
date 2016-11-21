@@ -10,8 +10,8 @@
  *  May be modified, and reused freely. Attribution is requested. I'd also love to hear about your animations on twitter @tmakaro
  */
 typedef struct {
-  float x; //in centimetres
-  float y; //
+  char x; //in .5mm
+  char y; //divide by 20. to get a float in centimeters
 } point;
 
 typedef float (*strengthFunction)(point, float);
@@ -28,61 +28,61 @@ typedef struct {
 point ledNumToPoint(byte ledNum){
   switch (ledNum){
     case 0:
-      return {4.1,1.75};
+      return {82,35};
     case 1:
-      return {4.1,.9};
+      return {82,18};
     case 2:
-      return {4.1,0};
+      return {82,0};
     case 3:
-      return {4.1,-.9};
+      return {82,-18};
     case 4:
-      return {4.1,-1.75};
+      return {82,-35};
     case 5:
-      return {3.1,-1.35};
+      return {62,-27};
     case 6:
-      return {3.1,-.5};
+      return {62,-10};
     case 7:
-      return {3.1,.5};
+      return {62,10};
     case 8:
-      return {3.1,1.35};
+      return {62,27};
     case 9:
-      return {2.25,.9};
+      return {45,18};
     case 10:
-      return {2.25,0};
+      return {45,0};
     case 11:
-      return {2.25,-.9};
+      return {45,-18};
     case 12:
-      return {1.35,-.5};
+      return {27,-10};
     case 13:
-      return {1.35,.5};
+      return {27,10};
     case 14:
-      return {-1.35,.5};
+      return {-27,10};
     case 15:
-      return {-1.35,-.5};
+      return {-27,-10};
     case 16:
-      return {-2.25,-.9};
+      return {-45,-18};
     case 17:
-      return {-2.25,0};
+      return {-45,0};
     case 18:
-      return {-2.25,.9};
+      return {-45,19};
     case 19:
-      return {-3.1,1.35};
+      return {-62,27};
     case 20:
-      return {-3.1,.5};
+      return {-62,10};
     case 21:
-      return {-3.1,-.5};
+      return {-62,-10};
     case 22:
-      return {-3.1,-1.35};
+      return {-62,-27};
     case 23:
-      return {-4.1,-1.75};
+      return {-82,-35};
     case 24:
-      return {-4.1,-.9};
+      return {-82,-18};
     case 25:
-      return {-4.1,0};
+      return {-82,0};
     case 26:
-      return {-4.1,.9};
+      return {-82,18};
     case 27:
-      return {-4.1,1.75};
+      return {-82,35};
   }
 }
 

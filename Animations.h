@@ -63,7 +63,8 @@ void breathe(colourProfile colour){
 }
 //profile 3
 float cornerWashFunction(point pt, float time, int sel){
-  float x = (pt.x * .3926 * (sel>1?1:-1) + pt.y * .9197) * .75;
+  float x = pt.x/20.; float y = pt.y/20.;
+  x = (x * .3926 * (sel>1?1:-1) + y * .9197) * .75;
   float t = 8*time - 4;
   float p = x + (sel%2==0?1:-1)*t;
   if(p>4) p-= 8;
@@ -97,7 +98,8 @@ void speckles(colourProfile colour){
 }
 //profile 5
 float rippleFunction(point pt, float time){
-  return sin(-2*PI*time+sqrt((pt.x*pt.x+5*pt.y*pt.y)))/2+.5;
+  float x = pt.x/20.; float y = pt.y/20.;
+  return sin(-2*PI*time+sqrt((x*x+5*y*y)))/2+.5;
 }
 void ripples(colourProfile colour){
   animateFunction(rippleFunction, 60, 10, colour.dark, colour.light);

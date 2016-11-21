@@ -70,7 +70,7 @@ void spookyBreathe(){
 }
 //profile 3
 float wingsFunction(point pt, float t){
-  float phi = atan(pt.y/abs(pt.x))*12;
+  float phi = atan((float)pt.y/abs(pt.x))*12;
   t = 12*PI/8*sin(2*PI*t);
   return 1/((phi+t)*(phi+t)+1);
 }
