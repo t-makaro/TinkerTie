@@ -1,7 +1,7 @@
 //Game of Life
 const byte xdim = 8;
 const byte ydim = 5;
-const byte iterations = 23;
+byte iterations = 23;
 char board[ydim][xdim] = { //Led Layout and current/initial state
   {-28,-99,-99,-99,-99,-99, 99,-1},
   {-27, 20,-99,-99,-99, 99,  9,-2},
@@ -9,7 +9,7 @@ char board[ydim][xdim] = { //Led Layout and current/initial state
   {-25,-22,-18, 15,-14,-11, -7,-4},
   { 24,-23, 17,-16,-13,-12, -6,-5},
 };
-const byte reset[ydim] = { //reset board to this state at number of iterations
+byte reset[ydim] = { //reset board to this state at number of iterations
   0b00000010,
   0b01000110,
   0b01000001,
@@ -62,8 +62,10 @@ void iterateGame(){
       board[i][j] = tempBoard[i][j];
     }
   }
-  iter = (iter+1) % iterations;
-  if(iter == 0) resetBoard();
+  if (iterations != 0){
+    iter = (iter+1) % iterations;
+    if(iter == 0) resetBoard();
+  }
 }
 boolean isAlive(byte ledNum){
   for(byte i = 0; i < ydim; i++){
@@ -71,4 +73,11 @@ boolean isAlive(byte ledNum){
       if(ledNum == abs(board[i][j])-1) return isOn(board[i][j]);
     }
   }
+}
+void initializeBoard( byte initialConditions[ydim], byte steps){
+  for( byte i = 0; i < ydim; i++ ){
+    reset[i] = initialConditions[i];
+  }
+  iterations = steps;
+  resetBoard();
 }

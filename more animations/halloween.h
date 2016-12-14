@@ -142,6 +142,8 @@ void nextAnimationProfile(){
   nextColourProfile();
   atFrame = 0;
 }
+void initializeAnimations(){
+}
 
 //add flicker to animations
 bool flicker(byte Delay, byte modify){

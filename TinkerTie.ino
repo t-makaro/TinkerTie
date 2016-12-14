@@ -26,6 +26,7 @@ void setup() {
   //digitalWrite(buttonPowerPin, HIGH);
   
   randomSeed(analogRead(seedPin));
+  initializeAnimations();
 }
 
 void loop() {
