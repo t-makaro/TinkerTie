@@ -157,7 +157,6 @@ bool flicker(byte Delay, byte modify){
 	}
 	return false;
 }
-//is 
 bool isDecayed(byte ledNum){
 	return (decayStates[onDecayState] >> ledNum & 1) == 1;
 }
