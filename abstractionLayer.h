@@ -38,13 +38,13 @@ point ledNumToPoint(byte ledNum){
     case 4:
       return {82,-35};
     case 5:
-      return {62,-27};
+      return {62,-26};
     case 6:
       return {62,-10};
     case 7:
       return {62,10};
     case 8:
-      return {62,27};
+      return {62,26};
     case 9:
       return {45,18};
     case 10:
@@ -66,13 +66,13 @@ point ledNumToPoint(byte ledNum){
     case 18:
       return {-45,19};
     case 19:
-      return {-62,27};
+      return {-62,26};
     case 20:
       return {-62,10};
     case 21:
       return {-62,-10};
     case 22:
-      return {-62,-27};
+      return {-62,-26};
     case 23:
       return {-82,-35};
     case 24:
