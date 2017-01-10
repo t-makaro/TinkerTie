@@ -43,10 +43,10 @@ void loop() {
   aniProfileButton();
   colourProfileButton();
   
-  callAnimation();
+  if (!emergency) callAnimation();
+  else callEmergency();
+
   bowtie.show();
-  
-  //testColours();
 }
 
 void aniProfileButton() {
@@ -69,10 +69,17 @@ void colourProfileButton(){
   state_prev = state_curr;
 }
 
-void testColours(){
+void callEmergency(){
+  for (byte i = 0; i < 27; i++){
+    bowtie.setPixelColor(i, 0xFFFFFF);
+  }
+  delay(20);
+}
+
+/*void testColours(){
   static long prevtime = millis();
   if(millis()-prevtime > 5000){
     prevtime = millis();
     nextColourProfile();
   }
-}
+}*/
