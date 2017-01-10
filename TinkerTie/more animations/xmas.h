@@ -8,7 +8,7 @@
 #include <arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include "abstractionLayer.h"
-#include "GameOfLife.h"
+#include "gameOfLife.h"
 
 Adafruit_NeoPixel bowtie = Adafruit_NeoPixel(28, 4, NEO_GRB + NEO_KHZ800);
 int atFrame = 0;
