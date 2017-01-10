@@ -33,7 +33,7 @@ colourProfile colourProfiles[numOfColourProfiles] = {
   {0x9F0000,0xFF46E4,0xA3101F,0xFF0FDF,0xFFC700}, //Reds,pink
   {0x008748,0xE5E500,0x007102,0x00FF77,0xE4ECC6} //Greens
 }; //fill with hexidecimal RGB colour codes
-colourProfile currentColours = colourProfiles[1];
+colourProfile currentColours = colourProfiles[0];
 
 //animation profiles
 //profile 0

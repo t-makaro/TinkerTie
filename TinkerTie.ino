@@ -8,22 +8,32 @@
  */
 #include <Adafruit_NeoPixel.h>
 #include <CapacitiveSensor.h>
-#include "Animations.h"
+#include "animations.h"
 
 #define buttonPin 12
-#define buttonPowerPin 10
+#define buttonPowerPin 13
+#define groundPin 10
 #define seedPin A2
 
 CapacitiveSensor capSensor = CapacitiveSensor(3, 1);
+bool emergency = false;
 
 void setup() {
   bowtie.begin();
   bowtie.setBrightness(6);
   bowtie.show(); // Initialize all pixels to 'off'
   
-  //pinMode(buttonPin, INPUT);
-  //pinMode(buttonPowerPin, OUTPUT);
-  //digitalWrite(buttonPowerPin, HIGH);
+  //For the extra button
+  pinMode(buttonPin, INPUT);
+  pinMode(buttonPowerPin, OUTPUT);
+  pinMode(groundPin, OUTPUT);
+  digitalWrite(buttonPowerPin, HIGH);
+  digitalWrite(groundPin, LOW);
+  
+  emergency = (digitalRead(buttonPin) == HIGH);
+  if (emergency){
+    bowtie.setBrightness(255);
+  }
   
   randomSeed(analogRead(seedPin));
   initializeAnimations();
@@ -31,7 +41,7 @@ void setup() {
 
 void loop() {
   aniProfileButton();
-  //colourProfileButton();
+  colourProfileButton();
   
   callAnimation();
   bowtie.show();
@@ -49,16 +59,15 @@ void aniProfileButton() {
   state_prev = state_curr;
 }
 
-//To be added later when a second button is installed onto the tinker tie.
-/*void colourProfileButton(){
+void colourProfileButton(){
   static int state_prev = digitalRead(buttonPin);
   int state_curr = digitalRead(buttonPin);
   
-  if (state_curr == LOW){
+  if (state_curr == LOW and state_prev == HIGH){
     nextColourProfile();
   }
   state_prev = state_curr;
-}*/
+}
 
 void testColours(){
   static long prevtime = millis();
