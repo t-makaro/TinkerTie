@@ -20,7 +20,7 @@ bool emergency = false;
 
 void setup() {
   bowtie.begin();
-  bowtie.setBrightness(6);
+  bowtie.setBrightness(5);
   bowtie.show(); // Initialize all pixels to 'off'
   
   //For the extra button
@@ -53,7 +53,7 @@ void aniProfileButton() {
   static long state_prev = capSensor.capacitiveSensor(30);
   long state_curr = capSensor.capacitiveSensor(30);
 
-  if ((state_curr <= 40) && (state_prev >= 50)) { //on short button release
+  if ((state_curr <= 40) && (state_prev >= 50)) { //on capacitive button release
     nextAnimationProfile();
   }
   state_prev = state_curr;
@@ -70,7 +70,7 @@ void colourProfileButton(){
 }
 
 void callEmergency(){
-  for (byte i = 0; i < 27; i++){
+  for (byte i = 0; i < 28; i++){
     bowtie.setPixelColor(i, 0xFFFFFF);
   }
   delay(20);
